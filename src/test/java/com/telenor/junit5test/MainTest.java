@@ -7,6 +7,13 @@
  * - JUnit 4 and 5 tests can run together (but not within the same test). How to do this
  *   is outside the scope of this presentation.
  * - Neat new features, some features slightly changed.
+ *
+ * To follow along on your laptop, check out the source code from
+ * https://github.com/cailin-telenor/JUnit5Test
+ *
+ * Need some things in the POM also
+ *
+ * Shameless theft of slides from here: https://codefx-org.github.io/talk-junit-5
  */
 package com.telenor.junit5test;
 
@@ -30,6 +37,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
+import org.junit.platform.runner.JUnitPlatform;
+import org.junit.runner.RunWith;
 
 /**
  *
@@ -38,6 +47,7 @@ import org.junit.jupiter.api.extension.ParameterResolutionException;
 // This annotation is explained below
 @ExtendWith(MainTest.IntegerParameterResolver.class)
 @ExtendWith(MainTest.ExtensionContextParameterResolver.class)
+//@RunWith(JUnitPlatform.class)
 public class MainTest {
 
     // New names for lifecycle annotations
@@ -45,15 +55,15 @@ public class MainTest {
     static // Note that just like junit 4, this must be static
     // public // Note that public visibility is no longer needed! Package visibility suffices.
     void beforeAll() {
-        System.out.println("I am run once before the class is run");
+        System.err.println("I am run once before the class is run");
     }
 
-    @BeforeEach
+    @BeforeEach // Before this was @Before
     void beforeEach() {
         System.out.println("I am run before each test");
     }
 
-    @AfterEach
+    @AfterEach // Before this was @After
     void afterEach() {
         System.out.println("I am run after each test");
     }
@@ -66,7 +76,7 @@ public class MainTest {
 
     @Test
     @DisplayName("Temporarily disabled")
-    @Disabled // Not @Ignored
+    @Disabled("because") // Not @Ignored
     void test0() {
 
     }
@@ -120,6 +130,7 @@ public class MainTest {
     @DisplayName("Expects NFE")
     void test4() {
         assertThrows(NumberFormatException.class, () -> Integer.parseInt("Not a number"));
+        assertThrows(NumberFormatException.class, () -> Integer.parseInt("42"));
     }
 
     @Test
@@ -148,6 +159,7 @@ public class MainTest {
         // Note that we aren't using assertThat from JUnit. Dependency on hamcrest was removed from junit itself,
         // to prevent the dependency hell situation that sometimes arose if you wanted to include another version
         // of hamcrest. We can still use hamcrest ourself, however, by explicitely importing it from the pom.
+        // Actually removed in JUnit 4.12
         org.hamcrest.MatcherAssert.assertThat(i, is(lessThan(5)));
     }
 
